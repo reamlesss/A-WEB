@@ -1,44 +1,57 @@
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
-const bodyParser = require("body-parser");
-
+const cors = require("cors");
 const app = express();
-const PORT = 3000;
-const TODO_FILE = path.join(__dirname, "todos.csv");
+const PORT = 5500; // Make sure this is the port you intend to use
 
-app.use(bodyParser.json());
-app.use(express.static("public"));
+// Middleware to serve static files from the 'public' folder
+app.use(express.static(path.join(__dirname, "public")));
 
-// Helper functions
-const readTodos = () => {
-  if (!fs.existsSync(TODO_FILE)) {
-    return [];
-  }
-  const data = fs.readFileSync(TODO_FILE, "utf8");
-  return data.split("\n").filter((line) => line.trim() !== "");
-};
+// Middleware to parse JSON bodies
+app.use(express.json());
+app.use(cors());
 
-const writeTodo = (todo) => {
-  fs.appendFileSync(TODO_FILE, `${todo}\n`, "utf8");
-};
-
-// Routes
+// GET route to fetch todos
 app.get("/todos", (req, res) => {
-  const todos = readTodos();
-  res.json(todos);
+  console.log("Started todos get");
+  const todosFilePath = path.join(__dirname, "todos.json");
+  fs.readFile(todosFilePath, "utf8", (err, data) => {
+    if (err) {
+      console.error("Error reading todos file:", err);
+      res.status(500).send("Server error");
+      return;
+    }
+    res.json(JSON.parse(data));
+  });
 });
 
+// POST route to add a new todo
 app.post("/todos", (req, res) => {
-  const todo = req.body.todo;
-  if (todo) {
-    writeTodo(todo);
-    res.status(200).json({ message: "Todo added successfully" });
-  } else {
-    res.status(400).json({ message: "Invalid todo" });
-  }
+  console.log("post todo started");
+  const newTodo = req.body.todo;
+  const todosFilePath = path.join(__dirname, "todos.json");
+
+  fs.readFile(todosFilePath, "utf8", (err, data) => {
+    if (err) {
+      console.error("Error reading todos file:", err);
+      res.status(500).send("Server error");
+      return;
+    }
+    const todos = JSON.parse(data);
+    todos.push(newTodo);
+    fs.writeFile(todosFilePath, JSON.stringify(todos, null, 2), (err) => {
+      if (err) {
+        console.error("Error writing todos file:", err);
+        res.status(500).send("Server error");
+        return;
+      }
+      res.status(201).send("Todo added");
+    });
+  });
 });
 
+// Start the server
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });

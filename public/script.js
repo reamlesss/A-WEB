@@ -27,7 +27,7 @@ window.onload = startCounting;
 
 async function loadTodos() {
   try {
-    const response = await fetch("/todos");
+    const response = await fetch("http:/  /localhost:5500/todos");
     const todos = await response.json();
     const todoList = document.getElementById("todo-list");
     todoList.innerHTML = ""; // Clear existing list
@@ -51,6 +51,7 @@ async function loadTodos() {
 }
 
 async function addTodo() {
+  console.log("method started");
   const todoInput = document.getElementById("new-todo");
   const todoText = todoInput.value.trim();
 
@@ -60,7 +61,7 @@ async function addTodo() {
   }
 
   try {
-    const response = await fetch("/todos", {
+    const response = await fetch("http://localhost:5500/todos", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
