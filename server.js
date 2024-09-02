@@ -29,6 +29,7 @@ app.get("/todos", (req, res) => {
 // POST route to add a new todo
 app.post("/todos", (req, res) => {
   console.log("post todo started");
+  console.log("Bucketlist item: "+req.body.todo+" added")
   const newTodo = req.body.todo;
   const todosFilePath = path.join(__dirname, "todos.json");
 
@@ -50,6 +51,37 @@ app.post("/todos", (req, res) => {
     });
   });
 });
+
+
+// DELETE route to remove a todo
+app.delete("/todos/:index", (req, res) => {
+  const index = parseInt(req.params.index); // Parse the index from the request parameters
+  const todosFilePath = path.join(__dirname, "todos.json");
+
+  fs.readFile(todosFilePath, "utf8", (err, data) => {
+    if (err) {
+      console.error("Error reading todos file:", err);
+      res.status(500).send("Server error");
+      return;
+    }
+
+    const todos = JSON.parse(data); // Parse the JSON data from the file
+    if (index >= 0 && index < todos.length) { // Check if the index is valid
+      todos.splice(index, 1); // Remove the todo at the specified index
+      fs.writeFile(todosFilePath, JSON.stringify(todos, null, 2), (err) => {
+        if (err) {
+          console.error("Error writing todos file:", err);
+          res.status(500).send("Server error");
+          return;
+        }
+        res.status(200).send("Todo removed"); // Send success response
+      });
+    } else {
+      res.status(400).send("Invalid index"); // Send error response for invalid index
+    }
+  });
+});
+
 
 // Start the server
 app.listen(PORT, () => {

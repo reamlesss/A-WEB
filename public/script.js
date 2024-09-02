@@ -25,9 +25,38 @@ function startCounting() {
 
 window.onload = startCounting;
 
+// async function loadTodos() {
+//   try {
+//     const response = await fetch("http:/localhost:5500/todos");
+//     const todos = await response.json();
+//     const todoList = document.getElementById("todo-list");
+//     todoList.innerHTML = ""; // Clear existing list
+
+//     todos.forEach((todoText, index) => {
+//       const li = document.createElement("li");
+//       li.textContent = todoText;
+
+//       const deleteButton = document.createElement("button");
+//       deleteButton.textContent = "Remove";
+//       deleteButton.onclick = function () {
+//         removeTodo(index);
+//       };
+
+//       li.appendChild(deleteButton);
+//       todoList.appendChild(li);
+//     });
+//   } catch (error) {
+//     console.error("Error loading todos:", error);
+//   }
+// }
 async function loadTodos() {
   try {
-    const response = await fetch("http:/  /localhost:5500/todos");
+    const response = await fetch("http://localhost:5500/todos");
+
+    if (!response.ok) {
+      throw new Error(`Failed to load todos: ${response.statusText}`);
+    }
+
     const todos = await response.json();
     const todoList = document.getElementById("todo-list");
     todoList.innerHTML = ""; // Clear existing list
@@ -39,7 +68,7 @@ async function loadTodos() {
       const deleteButton = document.createElement("button");
       deleteButton.textContent = "Remove";
       deleteButton.onclick = function () {
-        removeTodo(index);
+        removeTodo(index); // Attach the removeTodo function to the button click event
       };
 
       li.appendChild(deleteButton);
@@ -81,8 +110,19 @@ async function addTodo() {
 }
 
 async function removeTodo(index) {
-  // Implement logic to remove a todo item from the server
-  // This requires additional backend support to delete items
+  try {
+    const response = await fetch(`http://localhost:5500/todos/${index}`, {
+      method: "DELETE",
+    });
+
+    if (response.ok) {
+      loadTodos(); // Reload todos after deleting
+    } else {
+      console.error("Error removing todo:", await response.text());
+    }
+  } catch (error) {
+    console.error("Error removing todo:", error);
+  }
 }
 
 // Initial load of todos
