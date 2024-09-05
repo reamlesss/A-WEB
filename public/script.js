@@ -1,6 +1,7 @@
 function startCounting() {
   const targetDate = new Date("2024-06-26T00:00:00");
   const timeParagraph = document.getElementById("time-since");
+  const timeParagraph2 = document.getElementById("big-time-since");
 
   function updateTime() {
     const now = new Date();
@@ -18,6 +19,7 @@ function startCounting() {
     const timeString = `${days}D ${hours}H ${minutes}M ${seconds}S`;
 
     timeParagraph.textContent = timeString;
+    timeParagraph2.textContent = timeString;
   }
   setInterval(updateTime, 1000);
   updateTime();
@@ -50,13 +52,10 @@ window.onload = startCounting;
 //   }
 // }
 async function loadTodos() {
+  const input = document.getElementById("new-todo");
+  input.textContent = "Add a new item...";
   try {
     const response = await fetch("http://localhost:5500/todos");
-
-    if (!response.ok) {
-      throw new Error(`Failed to load todos: ${response.statusText}`);
-    }
-
     const todos = await response.json();
     const todoList = document.getElementById("todo-list");
     todoList.innerHTML = ""; // Clear existing list
@@ -64,15 +63,27 @@ async function loadTodos() {
     todos.forEach((todoText, index) => {
       const li = document.createElement("li");
       li.textContent = todoText;
-
+      li.style.opacity = 0;
       const deleteButton = document.createElement("button");
       deleteButton.textContent = "Remove";
       deleteButton.onclick = function () {
-        removeTodo(index); // Attach the removeTodo function to the button click event
+        removeTodo(index);
       };
 
       li.appendChild(deleteButton);
       todoList.appendChild(li);
+
+      // Add the scale-in class with a delay for each item
+      setTimeout(() => {
+        li.classList.add("scale-in");
+
+        // Remove the scale-in class after the animation ends
+        li.addEventListener("animationend", function handleAnimationEnd() {
+          li.classList.remove("scale-in");
+          li.style.opacity = 1;
+          li.removeEventListener("animationend", handleAnimationEnd); // Clean up the event listener
+        });
+      }, index * 100); // Delay each item by 100ms * index
     });
   } catch (error) {
     console.error("Error loading todos:", error);
@@ -108,21 +119,29 @@ async function addTodo() {
     console.error("Error adding todo:", error);
   }
 }
-
 async function removeTodo(index) {
-  try {
-    const response = await fetch(`http://localhost:5500/todos/${index}`, {
-      method: "DELETE",
-    });
+  const todoList = document.getElementById("todo-list");
+  const listItem = todoList.children[index];
 
-    if (response.ok) {
-      loadTodos(); // Reload todos after deleting
-    } else {
-      console.error("Error removing todo:", await response.text());
+  // Add the animation class to scale out
+  listItem.classList.add("scale-out");
+
+  // Wait for the animation to finish before removing the item
+  listItem.addEventListener("animationend", async () => {
+    try {
+      const response = await fetch(`http://localhost:5500/todos/${index}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        loadTodos(); // Reload todos after deleting
+      } else {
+        console.error("Error removing todo:", await response.text());
+      }
+    } catch (error) {
+      console.error("Error removing todo:", error);
     }
-  } catch (error) {
-    console.error("Error removing todo:", error);
-  }
+  });
 }
 
 // Initial load of todos

@@ -4,7 +4,7 @@ body {
 }
 
 .navbar {
-  background-color: #411e8f;
+  /* background-color: #411e8f; */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -12,6 +12,7 @@ body {
   color: white;
   gap: 30px;
   padding: 10px;
+  text-shadow: 0px 0px 10px white;
 }
 
 .navbar a {
@@ -33,7 +34,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  /* height: 100vh; */
   color: white;
   flex-direction: column;
 }
@@ -49,14 +50,23 @@ body {
 .add-todo input {
   padding: 8px;
   border-radius: 5px;
-  border: 0.5px solid #fff;
+  /* border: 1px solid #fff;  */
+  border: none;
   font-family: "Monda", sans-serif;
+  font-size: 35px;
   background-color: transparent;
   color: white;
   transition: 0.5s;
+  text-shadow: 0px 0px 10px white;
+  
 }
 .add-todo input:hover {
-  box-shadow: 0px 0px 100px rgba(255, 255, 255, 0.411);
+  transform: scale(110%);
+  margin-right: 20px;
+  outline: none;
+  /* box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.779); */
+  /* border: 1px solid white; */
+  /* box-shadow: 0px 0px 100px rgba(255, 255, 255, 0.411); */
 }
 
 .add-todo button {
@@ -67,12 +77,19 @@ body {
   color: white;
   font-family: "Monda", sans-serif;
   cursor: pointer;
-  transition: 0.5s;
+  border: 1px solid transparent;
+  transition: border-color 0.5s, box-shadow 0.5s, transform 0.5s,
+    margin-left 0.5s;
+  font-size: 35px;
 }
 
 .add-todo button:hover {
+  transform: scale(110%);
+  margin-left: 5px;
+  border-color: white;
   background-color: #5a2bb8;
-  box-shadow: 0px 0px 100px rgba(255, 255, 255, 0.411);
+  box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.409);
+  /* box-shadow: 0px 0px 100px rgba(255, 255, 255, 0.411); */
 }
 
 #todo-list {
@@ -84,21 +101,27 @@ body {
 }
 
 #todo-list li {
-  background-color: #2c2554;
+  background-color: transparent;
   margin: 8px 0;
   padding: 10px;
   border-radius: 5px;
+  font-size: 35px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   border: 1px solid transparent; /* Start with a transparent border */
-  transition: transform 0.5s, margin 0.5s, border-color 0.5s; /* Smooth transition for border color */
+  transition: transform 0.3s, margin 0.3s, border-color 0.3s, box-shadow 0.3s,
+    background-color 0.3s; /* Smooth transition for border color */
+  border-color: white;
+  box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.409);
 }
 
 #todo-list li:hover {
-  transform: scale(120%);
-  margin: 15px 0px;
-  border-color: white; /* Only change the border color on hover */
+  transform: scale(110%);
+  /* margin: 5px 0px;
+  box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.409); */
+  /* border-color: white; Only change the border color on hover */
+  /* box-shadow: 0px 0px 200px rgba(235, 135, 255, 0.3); */
 }
 
 #todo-list li button {
@@ -110,4 +133,113 @@ body {
 
 #todo-list li button:hover {
   color: #ff8a8a;
+}
+
+@keyframes scaleOut {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0);
+    opacity: 0;
+  }
+}
+
+@keyframes scaleIn {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.scale-in {
+  animation: scaleIn 0.8s forwards;
+}
+.scale-out {
+  animation: scaleOut 0.5s forwards;
+}
+
+.footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background-color: #5a2bb8;
+  color: white;
+  border-radius: 15px;
+}
+
+#big-time-since {
+  font-size: 70px;
+}
+
+.bucketlist-container {
+  height: 100vh;
+}
+
+.timeline-container {
+  color: white;
+  text-align: center;
+  margin: 40px 0;
+}
+
+.timeline {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  list-style-type: none;
+  padding: 0;
+  margin: 20px 0;
+}
+
+.timeline li {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  /* padding: 15px; */
+  margin-top: 0 !important;
+  border-radius: 10px;
+  font-size: 25px;
+  margin: 0 20px; /* Add margin between items */
+  text-shadow: 0px 0px 10px rgba(255, 255, 255, 0.89);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.timeline li:hover {
+  cursor: default;
+  transform: scale(105%);
+}
+
+.timeline li:last-child::after {
+  content: none; /* Remove line after the last element */
+}
+
+.date {
+  font-size: 18px;
+  color: #b8a4e2;
+  margin-bottom: 0 !important;
+  padding: 0;
+  /* margin-bottom: 5px; */
+}
+
+.milestone {
+  font-size: 30px;
+  font-weight: bold;
+}
+
+.text-glow {
+  text-shadow: 0px 0px 10px rgba(255, 255, 255, 0.89);
+}
+
+.hover-scale {
+  transition: 0.5s;
+}
+
+.hover-scale:hover {
+  transform: scale(110%);
 }
