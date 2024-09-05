@@ -52,8 +52,6 @@ window.onload = startCounting;
 //   }
 // }
 async function loadTodos() {
-  const input = document.getElementById("new-todo");
-  input.textContent = "Add a new item...";
   try {
     const response = await fetch("http://localhost:5500/todos");
     const todos = await response.json();
@@ -111,7 +109,7 @@ async function addTodo() {
 
     if (response.ok) {
       loadTodos(); // Reload todos after adding
-      todoInput.value = ""; // Clear input field
+      todoInput.value = ""; // Clear `input` field
     } else {
       console.error("Error adding todo:", await response.text());
     }
