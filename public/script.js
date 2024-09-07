@@ -25,8 +25,6 @@ function startCounting() {
   updateTime();
 }
 
-window.onload = startCounting;
-
 // async function loadTodos() {
 //   try {
 //     const response = await fetch("http:/localhost:5500/todos");
@@ -51,9 +49,16 @@ window.onload = startCounting;
 //     console.error("Error loading todos:", error);
 //   }
 // }
+ const input = document.getElementById("new-todo");
+async function setInputPlaceholder() {
+  if (input) {
+    input.value = "Add a new item...";
+  } else {
+    console.error("Element with id 'new-todo' not found.");
+  }
+}
 async function loadTodos() {
-  const input = document.getElementById("new-todo");
-  input.textContent = "Add a new item...";
+  setInputPlaceholder();
   try {
     const response = await fetch("http://localhost:5500/todos");
     const todos = await response.json();
@@ -145,4 +150,9 @@ async function removeTodo(index) {
 }
 
 // Initial load of todos
-loadTodos();
+window.onload = function () {
+  startCounting();
+  loadTodos();
+};
+
+input.addEventListener("focus",())

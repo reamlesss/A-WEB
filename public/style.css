@@ -1,5 +1,6 @@
 body {
-  background-color: #100d18;
+  /* background-color: #100d18; */
+  background-color: black;
   font-family: "Monda", sans-serif;
 }
 
@@ -21,6 +22,7 @@ body {
 }
 
 .together {
+  cursor: default;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -58,7 +60,6 @@ body {
   color: white;
   transition: 0.5s;
   text-shadow: 0px 0px 10px white;
-  
 }
 .add-todo input:hover {
   transform: scale(110%);
