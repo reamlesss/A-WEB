@@ -49,7 +49,7 @@ function startCounting() {
 //     console.error("Error loading todos:", error);
 //   }
 // }
- const input = document.getElementById("new-todo");
+const input = document.getElementById("new-todo");
 async function setInputPlaceholder() {
   if (input) {
     input.value = "Add a new item...";
@@ -139,6 +139,7 @@ async function removeTodo(index) {
       });
 
       if (response.ok) {
+        setInputPlaceholder();
         loadTodos(); // Reload todos after deleting
       } else {
         console.error("Error removing todo:", await response.text());
@@ -155,4 +156,6 @@ window.onload = function () {
   loadTodos();
 };
 
-input.addEventListener("focus",())
+input.addEventListener("focus", (event) => {
+  event.target.value = "";
+});
