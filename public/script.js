@@ -116,7 +116,7 @@ async function addTodo() {
 
     if (response.ok) {
       loadTodos(); // Reload todos after adding
-      todoInput.value = ""; // Clear input field
+      todoInput.value = ""; // Clear `input` field
     } else {
       console.error("Error adding todo:", await response.text());
     }
