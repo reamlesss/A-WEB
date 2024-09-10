@@ -25,30 +25,6 @@ function startCounting() {
   updateTime();
 }
 
-// async function loadTodos() {
-//   try {
-//     const response = await fetch("http:/localhost:5500/todos");
-//     const todos = await response.json();
-//     const todoList = document.getElementById("todo-list");
-//     todoList.innerHTML = ""; // Clear existing list
-
-//     todos.forEach((todoText, index) => {
-//       const li = document.createElement("li");
-//       li.textContent = todoText;
-
-//       const deleteButton = document.createElement("button");
-//       deleteButton.textContent = "Remove";
-//       deleteButton.onclick = function () {
-//         removeTodo(index);
-//       };
-
-//       li.appendChild(deleteButton);
-//       todoList.appendChild(li);
-//     });
-//   } catch (error) {
-//     console.error("Error loading todos:", error);
-//   }
-// }
 const input = document.getElementById("new-todo");
 async function setInputPlaceholder() {
   if (input) {
@@ -57,46 +33,19 @@ async function setInputPlaceholder() {
     console.error("Element with id 'new-todo' not found.");
   }
 }
+const API_BASE_URL = "https://a-web-9gho.onrender.com"; // Replace with your actual Render URL
+
 async function loadTodos() {
-  setInputPlaceholder();
   try {
-    const response = await fetch("http://localhost:5500/todos");
+    const response = await fetch(`${API_BASE_URL}/todos`);
     const todos = await response.json();
-    const todoList = document.getElementById("todo-list");
-    todoList.innerHTML = ""; // Clear existing list
-
-    todos.forEach((todoText, index) => {
-      const li = document.createElement("li");
-      li.textContent = todoText;
-      li.style.opacity = 0;
-      const deleteButton = document.createElement("button");
-      deleteButton.textContent = "Remove";
-      deleteButton.onclick = function () {
-        removeTodo(index);
-      };
-
-      li.appendChild(deleteButton);
-      todoList.appendChild(li);
-
-      // Add the scale-in class with a delay for each item
-      setTimeout(() => {
-        li.classList.add("scale-in");
-
-        // Remove the scale-in class after the animation ends
-        li.addEventListener("animationend", function handleAnimationEnd() {
-          li.classList.remove("scale-in");
-          li.style.opacity = 1;
-          li.removeEventListener("animationend", handleAnimationEnd); // Clean up the event listener
-        });
-      }, index * 100); // Delay each item by 100ms * index
-    });
+    // ...rest of the code
   } catch (error) {
     console.error("Error loading todos:", error);
   }
 }
 
 async function addTodo() {
-  console.log("method started");
   const todoInput = document.getElementById("new-todo");
   const todoText = todoInput.value.trim();
 
@@ -106,7 +55,7 @@ async function addTodo() {
   }
 
   try {
-    const response = await fetch("http://localhost:5500/todos", {
+    const response = await fetch(`${API_BASE_URL}/todos`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -115,8 +64,8 @@ async function addTodo() {
     });
 
     if (response.ok) {
-      loadTodos(); // Reload todos after adding
-      todoInput.value = ""; // Clear `input` field
+      loadTodos();
+      todoInput.value = ""; // Clear input
     } else {
       console.error("Error adding todo:", await response.text());
     }
@@ -124,30 +73,21 @@ async function addTodo() {
     console.error("Error adding todo:", error);
   }
 }
+
 async function removeTodo(index) {
-  const todoList = document.getElementById("todo-list");
-  const listItem = todoList.children[index];
+  try {
+    const response = await fetch(`${API_BASE_URL}/todos/${index}`, {
+      method: "DELETE",
+    });
 
-  // Add the animation class to scale out
-  listItem.classList.add("scale-out");
-
-  // Wait for the animation to finish before removing the item
-  listItem.addEventListener("animationend", async () => {
-    try {
-      const response = await fetch(`http://localhost:5500/todos/${index}`, {
-        method: "DELETE",
-      });
-
-      if (response.ok) {
-        setInputPlaceholder();
-        loadTodos(); // Reload todos after deleting
-      } else {
-        console.error("Error removing todo:", await response.text());
-      }
-    } catch (error) {
-      console.error("Error removing todo:", error);
+    if (response.ok) {
+      loadTodos();
+    } else {
+      console.error("Error removing todo:", await response.text());
     }
-  });
+  } catch (error) {
+    console.error("Error removing todo:", error);
+  }
 }
 
 // Initial load of todos
