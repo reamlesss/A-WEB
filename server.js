@@ -3,7 +3,8 @@ const fs = require("fs");
 const path = require("path");
 const cors = require("cors");
 const app = express();
-const PORT = 5500; // Make sure this is the port you intend to use
+const PORT = process.env.PORT || 5500; // Render přidělí port dynamicky
+// Make sure this is the port you intend to use
 
 // Middleware to serve static files from the 'public' folder
 app.use(express.static(path.join(__dirname, "public")));
