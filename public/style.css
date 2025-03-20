@@ -13,7 +13,7 @@ body {
   color: white;
   gap: 30px;
   padding: 10px;
-  text-shadow: 0px 0px 10px white;
+  /* text-shadow: 0px 0px 10px white; */
 }
 
 .navbar a {
@@ -59,7 +59,7 @@ body {
   background-color: transparent;
   color: white;
   transition: 0.5s;
-  text-shadow: 0px 0px 10px white;
+  /* text-shadow: 0px 0px 10px white; */
 }
 .add-todo input:hover {
   transform: scale(110%);
@@ -158,6 +158,18 @@ body {
     opacity: 1;
   }
 }
+
+@keyframes scaleInOneByOne {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
 .scale-in {
   animation: scaleIn 0.8s forwards;
 }
@@ -205,16 +217,35 @@ body {
   align-items: center;
   /* padding: 15px; */
   margin-top: 0 !important;
+  margin: 0;
   border-radius: 10px;
   font-size: 25px;
   margin: 0 20px; /* Add margin between items */
-  text-shadow: 0px 0px 10px rgba(255, 255, 255, 0.89);
+  /* text-shadow: 0px 0px 10px rgba(255, 255, 255, 0.89); */
   transition: transform 0.3s, box-shadow 0.3s;
+  animation: scaleInOneByOne 0.8s forwards;
+  animation-delay: calc(var(--i) * 0.2s); /* Delay based on index */
 }
 
 .timeline li:hover {
   cursor: default;
   transform: scale(105%);
+}
+
+.timeline li:nth-child(1) {
+  --i: 1;
+}
+
+.timeline li:nth-child(2) {
+  --i: 2;
+}
+
+.timeline li:nth-child(3) {
+  --i: 3;
+}
+
+.timeline li:nth-child(4) {
+  --i: 4;
 }
 
 .timeline li:last-child::after {
@@ -230,12 +261,13 @@ body {
 }
 
 .milestone {
+  margin-top: 0;
   font-size: 30px;
   font-weight: bold;
 }
 
 .text-glow {
-  text-shadow: 0px 0px 10px rgba(255, 255, 255, 0.89);
+  /* text-shadow: 0px 0px 10px rgba(255, 255, 255, 0.89); */
 }
 
 .hover-scale {
@@ -244,4 +276,26 @@ body {
 
 .hover-scale:hover {
   transform: scale(110%);
+}
+
+@media (max-width: 600px) {
+  .together p {
+    font-size: 30px;
+  }
+
+  #big-time-since {
+    font-size: 40px;
+  }
+
+  .milestone {
+    font-size: 30px;
+  }
+
+  .timeline {
+    flex-direction: column;
+  }
+
+  .timeline li {
+    margin: 10px 0; /* Adjust margin for column layout */
+  }
 }
