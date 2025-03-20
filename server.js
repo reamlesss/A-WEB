@@ -2,9 +2,10 @@ const express = require("express");
 const fs = require("fs");
 const path = require("path");
 const cors = require("cors");
+const os = require("os");
+
 const app = express();
-const PORT = process.env.PORT || 5500; // Render přidělí port dynamicky
-// Make sure this is the port you intend to use
+const PORT = process.env.PORT || 5500;
 
 // Middleware to serve static files from the 'public' folder
 app.use(express.static(path.join(__dirname, "public")));
@@ -55,7 +56,7 @@ app.post("/todos", (req, res) => {
 
 // DELETE route to remove a todo
 app.delete("/todos/:index", (req, res) => {
-  const index = parseInt(req.params.index); // Parse the index from the request parameters
+  const index = parseInt(req.params.index);
   const todosFilePath = path.join(__dirname, "todos.json");
 
   fs.readFile(todosFilePath, "utf8", (err, data) => {
@@ -65,26 +66,40 @@ app.delete("/todos/:index", (req, res) => {
       return;
     }
 
-    const todos = JSON.parse(data); // Parse the JSON data from the file
+    const todos = JSON.parse(data);
     if (index >= 0 && index < todos.length) {
-      // Check if the index is valid
-      todos.splice(index, 1); // Remove the todo at the specified index
+      todos.splice(index, 1);
       fs.writeFile(todosFilePath, JSON.stringify(todos, null, 2), (err) => {
         if (err) {
           console.error("Error writing todos file:", err);
           res.status(500).send("Server error");
           return;
         }
-        res.status(200).send("Todo removed"); // Send success response
+        res.status(200).send("Todo removed");
       });
     } else {
-      res.status(400).send("Invalid index"); // Send error response for invalid index
+      res.status(400).send("Invalid index");
     }
   });
   console.log("Todo deleted");
 });
 
-// Start the server
+// Funkce na získání IP adresy
+function getLocalIPAddress() {
+  const interfaces = os.networkInterfaces();
+  for (const iface of Object.values(interfaces)) {
+    for (const details of iface) {
+      if (details.family === "IPv4" && !details.internal) {
+        return details.address;
+      }
+    }
+  }
+  return "Nedostupná";
+}
+
+// Start serveru
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  const localIP = getLocalIPAddress();
+  console.log(`Server běží na lokální adrese: http://localhost:${PORT}`);
+  console.log(`Připojení z jiného zařízení: http://${localIP}:${PORT}`);
 });
