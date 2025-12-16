@@ -94,8 +94,24 @@ async function removeTodo(index) {
 window.onload = function () {
   startCounting();
   loadTodos();
+
+  const goNextBtn = document.getElementById("go-next-btn");
+  const introScreen = document.getElementById("intro-screen");
+  const mainContent = document.getElementById("main-content");
+
+  if (goNextBtn) {
+    goNextBtn.addEventListener("click", () => {
+      introScreen.style.opacity = "0";
+      setTimeout(() => {
+        introScreen.style.display = "none";
+        mainContent.style.display = "block";
+      }, 1000); // Wait for transition
+    });
+  }
 };
 
-input.addEventListener("focus", (event) => {
-  event.target.value = "";
-});
+if (input) {
+  input.addEventListener("focus", (event) => {
+    event.target.value = "";
+  });
+}
