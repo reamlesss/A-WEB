@@ -321,3 +321,67 @@ body {
 }
 
 
+
+/* Letter Screen */
+.letter-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: transparent;
+  z-index: 1500;
+  transition: opacity 0.8s ease-in-out;
+  overflow-y: auto; /* Enable vertical scrolling */
+  padding: 2rem 1rem; /* Reduced horizontal padding for mobile */
+  
+  /* Flexbox for centering, but safe for overflow */
+  display: flex; 
+  flex-direction: column;
+  align-items: center; 
+}
+
+/* Ensure container pushes away from top/bottom if content is tall */
+.letter-screen::before,
+.letter-screen::after {
+  content: '';
+  display: block;
+  flex-shrink: 0;
+  height: 2rem; /* Buffer space */
+}
+
+.letter-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    max-width: 800px; /* Slightly narrower for better reading experience */
+    width: 100%;
+    margin: auto; /* Auto margin works with flex to center vertically if space permits */
+}
+
+/* Adjustments for Letter Card specifically in this screen if needed */
+.letter-screen .letter-card {
+    background: rgba(40, 10, 15, 0.85); /* Slightly darker/more opaque for readability over animation */
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+}
+
+@media (max-width: 600px) {
+    .letter-card {
+        padding: 1.5rem; /* Reduce padding on mobile */
+    }
+    
+    .letter-title {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .letter-content {
+        font-size: 1rem; /* Slightly smaller text for better fit */
+    }
+    
+    .intro-btn {
+        padding: 0.8rem 2rem;
+        font-size: 1.2rem;
+    }
+}

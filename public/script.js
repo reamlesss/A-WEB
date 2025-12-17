@@ -104,9 +104,32 @@ window.onload = function () {
       introScreen.style.opacity = "0";
       setTimeout(() => {
         introScreen.style.display = "none";
-        mainContent.style.display = "block";
-      }, 1000); // Wait for transition
+        // Show Letter Screen instead of Main Content
+        const letterScreen = document.getElementById("letter-screen");
+        letterScreen.style.display = "flex";
+        
+        // Trigger reflow to ensure transition can happen if we add one (optional but good practice)
+        // For now, simpler fade-in logic or just display
+        
+      }, 1000); 
     });
+  }
+
+  const goToMainBtn = document.getElementById("go-to-main-btn");
+  if (goToMainBtn) {
+      goToMainBtn.addEventListener("click", () => {
+          const letterScreen = document.getElementById("letter-screen");
+          letterScreen.style.opacity = "0";
+          setTimeout(() => {
+              letterScreen.style.display = "none";
+              mainContent.style.display = "block";
+              
+              // Optional: trigger animations on main content elements if needed
+              const timerSection = document.querySelector('.timer-section');
+              if(timerSection) timerSection.classList.add('fade-in');
+
+          }, 1000);
+      });
   }
 };
 
