@@ -104,13 +104,18 @@ window.onload = function () {
   const goNextBtn = document.getElementById("go-next-btn");
   const introScreen = document.getElementById("intro-screen");
   const mainContent = document.getElementById("main-content");
+  const audio = document.getElementById("bgMusic");
+
+  let isPlaying = false;
 
   if (goNextBtn) {
     goNextBtn.addEventListener("click", () => {
       introScreen.style.opacity = "0";
       setTimeout(() => {
         introScreen.style.display = "none";
-        
+
+        audio.play();
+        isPlaying = true;
         const letterScreen = document.getElementById("letter-screen");
         letterScreen.style.display = "flex";
         
