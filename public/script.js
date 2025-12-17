@@ -25,6 +25,10 @@ function startCounting() {
   updateTime();
 }
 
+
+
+// ancient unused code
+
 const input = document.getElementById("new-todo");
 async function setInputPlaceholder() {
   if (input) {
@@ -35,6 +39,8 @@ async function setInputPlaceholder() {
 }
 const API_BASE_URL = "https://a-web-9gho.onrender.com"; // Replace with your actual Render URL
 
+
+// ancient unused code
 async function loadTodos() {
   try {
     const response = await fetch(`${API_BASE_URL}/todos`);
@@ -90,7 +96,7 @@ async function removeTodo(index) {
   }
 }
 
-// Initial load of todos
+
 window.onload = function () {
   startCounting();
   loadTodos();
@@ -104,12 +110,10 @@ window.onload = function () {
       introScreen.style.opacity = "0";
       setTimeout(() => {
         introScreen.style.display = "none";
-        // Show Letter Screen instead of Main Content
+        
         const letterScreen = document.getElementById("letter-screen");
         letterScreen.style.display = "flex";
         
-        // Trigger reflow to ensure transition can happen if we add one (optional but good practice)
-        // For now, simpler fade-in logic or just display
         
       }, 1000); 
     });
@@ -132,6 +136,125 @@ window.onload = function () {
       });
   }
 };
+
+
+  /* Story Mode Logic */
+  let currentSlide = 0;
+  const slides = document.querySelectorAll('.story-slide');
+  const progressBar = document.getElementById('story-progress-bar');
+  const prevBtn = document.getElementById('prev-story-btn');
+  const nextBtn = document.getElementById('next-story-btn');
+  const finishBtn = document.getElementById('go-to-main-btn');
+  const storyControls = document.querySelector('.story-controls');
+
+  function updateSlide(index) {
+      slides.forEach((slide, i) => {
+          slide.classList.remove('active', 'prev');
+          if (i === index) {
+              slide.classList.add('active');
+          } else if (i < index) {
+              slide.classList.add('prev');
+          }
+      });
+
+      // Update Progress Bar
+      const progress = ((index + 1) / slides.length) * 100;
+      if (progressBar) progressBar.style.width = `${progress}%`;
+
+      // Update Controls
+      if (prevBtn) {
+          prevBtn.style.opacity = index === 0 ? '0' : '1';
+          prevBtn.style.pointerEvents = index === 0 ? 'none' : 'auto';
+      }
+
+      // Check if last slide
+      if (index === slides.length - 1) {
+          if (nextBtn) nextBtn.style.display = 'none';
+          if (storyControls) storyControls.style.display = 'none'; // Hide controls on last slide to show big finish button
+          if (finishBtn) finishBtn.style.display = 'block';
+      } else {
+          if (nextBtn) nextBtn.style.display = 'block';
+          if (storyControls) storyControls.style.display = 'flex';
+          if (finishBtn) finishBtn.style.display = 'none';
+      }
+  }
+
+  if (nextBtn) {
+      nextBtn.addEventListener('click', () => {
+          if (currentSlide < slides.length - 1) {
+              currentSlide++;
+              updateSlide(currentSlide);
+          }
+      });
+  }
+
+  if (prevBtn) {
+      prevBtn.addEventListener('click', () => {
+          if (currentSlide > 0) {
+              currentSlide--;
+              updateSlide(currentSlide);
+          }
+      });
+  }
+  
+  // Initialize progress
+  if (slides.length > 0) updateSlide(0);
+
+  // Optional: Tap anywhere on letter content to advance (for mobile feel)
+  const storyWrapper = document.querySelector('.story-wrapper');
+  if (storyWrapper) {
+      storyWrapper.addEventListener('click', (e) => {
+           // Only advance if not clicking a button and not on the last slide
+           if (e.target.tagName !== 'BUTTON' && currentSlide < slides.length - 1) {
+               currentSlide++;
+               updateSlide(currentSlide);
+           }
+      });
+  }
+
+  /* Heart Trail Effect */
+  let lastHeartTime = 0;
+  document.addEventListener('mousemove', (e) => {
+      const now = Date.now();
+      if (now - lastHeartTime > 100) { // Limit number of hearts (every 100ms)
+          createHeart(e.clientX, e.clientY);
+          lastHeartTime = now;
+      }
+      
+      /* 3D Tilt Effect for Letter Card */
+      const letterCard = document.querySelector('.letter-card');
+      if (letterCard && letterCard.offsetParent !== null) { // Only if visible
+          const rect = letterCard.getBoundingClientRect();
+          const x = e.clientX - rect.left; // x position within the element.
+          const y = e.clientY - rect.top;  // y position within the element.
+          
+          const centerX = rect.width / 2;
+          const centerY = rect.height / 2;
+          
+          const rotateX = ((y - centerY) / centerY) * -5; // Max 5deg rotation
+          const rotateY = ((x - centerX) / centerX) * 5;
+
+          letterCard.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+      }
+  });
+
+  function createHeart(x, y) {
+      const heart = document.createElement('div');
+      heart.classList.add('heart-trail');
+      heart.innerHTML = '❤'; // You can use other symbols or SVGs
+      heart.style.left = `${x}px`;
+      heart.style.top = `${y}px`;
+      
+      // Randomize slight movement
+      const randomX = (Math.random() - 0.5) * 20;
+      heart.style.transform = `translateX(${randomX}px)`;
+
+      document.body.appendChild(heart);
+
+      setTimeout(() => {
+          heart.remove();
+      }, 1000);
+  }
 
 if (input) {
   input.addEventListener("focus", (event) => {
