@@ -279,9 +279,9 @@ body {
 
 .letter-content {
   font-size: 1.1rem;
-  /* line-height: 1.8; */
+  line-height: 1.8;
   color: var(--text-color);
-  /* white-space: pre-wrap; Preserve line breaks */
+  /* white-space: pre-wrap; */
   font-family: "Monda", sans-serif;
   text-align: center !important;
   margin-bottom: 0;
@@ -473,11 +473,11 @@ body {
     color: #1a0505;
 }
 
-.nav-btn:hover {
+/* .nav-btn:hover {
     background: rgba(255, 255, 255, 0.15);
     border-color: var(--primary-color);
     transform: translateY(-2px);
-}
+} */
 
 .tap-hint {
     display: none;
