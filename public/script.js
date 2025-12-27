@@ -107,20 +107,38 @@ window.onload = function () {
   const audio = document.getElementById("bgMusic");
 
   let isPlaying = false;
-
+  mainContent.style.display = "block";
+  
   if (goNextBtn) {
     goNextBtn.addEventListener("click", () => {
       introScreen.style.opacity = "0";
       setTimeout(() => {
         introScreen.style.display = "none";
+        mainContent.style.display = "block";
+        
+        const timerSection = document.querySelector('.timer-section');
+        if(timerSection) timerSection.classList.add('fade-in');
+      }, 1000); 
+    });
+  }
 
+  const openLetterBtn = document.getElementById("open-letter-btn");
+  if (openLetterBtn) {
+    openLetterBtn.addEventListener("click", () => {
+      mainContent.style.display = "none";
+      const letterScreen = document.getElementById("letter-screen");
+      letterScreen.style.display = "flex";
+      letterScreen.style.opacity = "1";
+      
+      // Reset story to beginning
+      currentSlide = 0;
+      updateSlide(0);
+      
+      if (audio) {
+        audio.currentTime = 0;
         audio.play();
         isPlaying = true;
-        const letterScreen = document.getElementById("letter-screen");
-        letterScreen.style.display = "flex";
-        
-        
-      }, 1000); 
+      }
     });
   }
 
@@ -133,7 +151,11 @@ window.onload = function () {
               letterScreen.style.display = "none";
               mainContent.style.display = "block";
               
-              // Optional: trigger animations on main content elements if needed
+              if (audio) {
+                audio.pause();
+                isPlaying = false;
+              }
+
               const timerSection = document.querySelector('.timer-section');
               if(timerSection) timerSection.classList.add('fade-in');
 

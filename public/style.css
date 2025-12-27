@@ -39,6 +39,10 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
+.fade-in {
+  animation: fadeIn 1.5s ease-out forwards;
+}
+
 @keyframes slowGlow {
   0% { text-shadow: 0 0 5px rgba(255, 255, 255, 0.2); color: var(--text-color); }
   50% { text-shadow: 0 0 15px rgba(255, 255, 255, 0.6); color: var(--primary-color); }
@@ -77,7 +81,16 @@ body {
   letter-spacing: 1px;
 }
 
-.intro-btn {
+.menu-container{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 20px !important;
+  margin-top: 1rem;
+}
+
+.menu-btn {
   padding: 1rem 3rem;
   font-size: 1.4rem;
   background: var(--primary-color);
@@ -92,7 +105,7 @@ body {
   box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
 }
 
-.intro-btn:hover {
+.menu-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 0 30px rgba(255, 255, 255, 0.6);
 }
