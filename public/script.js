@@ -18,8 +18,8 @@ function startCounting() {
 
     const timeString = `${days}D ${hours}H ${minutes}M ${seconds}S`;
 
-    timeParagraph.textContent = timeString;
-    timeParagraph2.textContent = timeString;
+    if (timeParagraph) timeParagraph.textContent = timeString;
+    if (timeParagraph2) timeParagraph2.textContent = timeString;
   }
   setInterval(updateTime, 1000);
   updateTime();
@@ -27,7 +27,7 @@ function startCounting() {
 
 
 
-// ancient unused code
+
 
 const input = document.getElementById("new-todo");
 async function setInputPlaceholder() {
@@ -37,15 +37,27 @@ async function setInputPlaceholder() {
     console.error("Element with id 'new-todo' not found.");
   }
 }
-const API_BASE_URL = "https://a-web-9gho.onrender.com"; // Replace with your actual Render URL
+const API_BASE_URL = window.location.origin;
 
 
-// ancient unused code
+
 async function loadTodos() {
   try {
     const response = await fetch(`${API_BASE_URL}/todos`);
     const todos = await response.json();
-    // ...rest of the code
+    const todoList = document.getElementById("todo-list");
+    if (todoList) {
+      todoList.innerHTML = "";
+      todos.forEach((todo, index) => {
+        const li = document.createElement("li");
+        li.className = "todo-item";
+        li.innerHTML = `
+          <span class="todo-text">${todo}</span>
+          <button class="delete-btn" onclick="removeTodo(${index})">×</button>
+        `;
+        todoList.appendChild(li);
+      });
+    }
   } catch (error) {
     console.error("Error loading todos:", error);
   }
@@ -98,16 +110,17 @@ async function removeTodo(index) {
 
 
 window.onload = function () {
+  const mainContent = document.getElementById("main-content");
+  if (mainContent) mainContent.style.display = "block";
+
   startCounting();
   loadTodos();
 
   const goNextBtn = document.getElementById("go-next-btn");
   const introScreen = document.getElementById("intro-screen");
-  const mainContent = document.getElementById("main-content");
   const audio = document.getElementById("bgMusic");
 
   let isPlaying = false;
-  mainContent.style.display = "block";
   
   if (goNextBtn) {
     goNextBtn.addEventListener("click", () => {
@@ -161,6 +174,28 @@ window.onload = function () {
 
           }, 1000);
       });
+  }
+  const bucketlistBtn = document.getElementById("bucketlist-btn");
+  if (bucketlistBtn) {
+    bucketlistBtn.addEventListener("click", () => {
+      mainContent.style.display = "none";
+      const bucketlistScreen = document.getElementById("bucketlist-screen");
+      bucketlistScreen.style.display = "flex";
+      bucketlistScreen.style.opacity = "1";
+      loadTodos();
+    });
+  }
+
+  const closeBucketlistBtn = document.getElementById("close-bucketlist-btn");
+  if (closeBucketlistBtn) {
+    closeBucketlistBtn.addEventListener("click", () => {
+      const bucketlistScreen = document.getElementById("bucketlist-screen");
+      bucketlistScreen.style.opacity = "0";
+      setTimeout(() => {
+        bucketlistScreen.style.display = "none";
+        mainContent.style.display = "block";
+      }, 800);
+    });
   }
 };
 

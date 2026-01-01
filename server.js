@@ -14,7 +14,6 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
 app.use(cors());
 
-// GET route to fetch todos
 app.get("/todos", (req, res) => {
   const todosFilePath = path.join(__dirname, "todos.json");
   fs.readFile(todosFilePath, "utf8", (err, data) => {
@@ -23,9 +22,17 @@ app.get("/todos", (req, res) => {
       res.status(500).send("Server error");
       return;
     }
-    res.json(JSON.parse(data));
+    let todos = [];
+    if (data && data.trim() !== "") {
+      try {
+        todos = JSON.parse(data);
+      } catch (parseErr) {
+        console.error("Error parsing todos JSON:", parseErr);
+        todos = [];
+      }
+    }
+    res.json(todos);
   });
-  console.log("Todos loaded");
 });
 
 // POST route to add a new todo
@@ -41,7 +48,19 @@ app.post("/todos", (req, res) => {
       res.status(500).send("Server error");
       return;
     }
-    const todos = JSON.parse(data);
+
+    let todos = [];
+    if (data && data.trim() !== "") {
+      try {
+        todos = JSON.parse(data);
+      } catch (parseErr) {
+        console.error("Error parsing todos JSON:", parseErr);
+        // If file is corrupted, we might want to start fresh or return error
+        // For now, let's start fresh to keep it working
+        todos = [];
+      }
+    }
+
     todos.push(newTodo);
     fs.writeFile(todosFilePath, JSON.stringify(todos, null, 2), (err) => {
       if (err) {
@@ -66,7 +85,16 @@ app.delete("/todos/:index", (req, res) => {
       return;
     }
 
-    const todos = JSON.parse(data);
+    let todos = [];
+    if (data && data.trim() !== "") {
+      try {
+        todos = JSON.parse(data);
+      } catch (parseErr) {
+        console.error("Error parsing todos JSON:", parseErr);
+        todos = [];
+      }
+    }
+
     if (index >= 0 && index < todos.length) {
       todos.splice(index, 1);
       fs.writeFile(todosFilePath, JSON.stringify(todos, null, 2), (err) => {
