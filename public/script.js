@@ -108,6 +108,73 @@ async function removeTodo(index) {
   }
 }
 
+// Movie List Logic
+async function loadMovies() {
+  try {
+    const response = await fetch(`${API_BASE_URL}/movies`);
+    const movies = await response.json();
+    const moviesList = document.getElementById("movies-list");
+    if (moviesList) {
+      moviesList.innerHTML = "";
+      movies.forEach((movie, index) => {
+        const li = document.createElement("li");
+        li.className = "todo-item movie-item";
+        li.innerHTML = `
+          <div class="movie-info">
+            <span class="todo-text">${movie.name}</span>
+            <div class="movie-genre-label">${movie.genre}</div>
+          </div>
+          <button class="delete-btn" onclick="removeMovie(${index})">×</button>
+        `;
+        moviesList.appendChild(li);
+      });
+    }
+  } catch (error) {
+    console.error("Error loading movies:", error);
+  }
+}
+
+async function addMovie() {
+  const nameInput = document.getElementById("movie-name");
+  const genreInput = document.getElementById("movie-genre");
+  const name = nameInput.value.trim();
+  const genre = genreInput.value.trim();
+
+  if (!name || !genre) {
+    alert("Please enter both movie name and genre!");
+    return;
+  }
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/movies`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, genre }),
+    });
+
+    if (response.ok) {
+      loadMovies();
+      nameInput.value = "";
+      genreInput.value = "";
+    }
+  } catch (error) {
+    console.error("Error adding movie:", error);
+  }
+}
+
+async function removeMovie(index) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/movies/${index}`, {
+      method: "DELETE",
+    });
+    if (response.ok) {
+      loadMovies();
+    }
+  } catch (error) {
+    console.error("Error removing movie:", error);
+  }
+}
+
 
 window.onload = function () {
   const mainContent = document.getElementById("main-content");
@@ -115,6 +182,7 @@ window.onload = function () {
 
   startCounting();
   loadTodos();
+  loadMovies();
 
   const goNextBtn = document.getElementById("go-next-btn");
   const introScreen = document.getElementById("intro-screen");
@@ -193,6 +261,28 @@ window.onload = function () {
       bucketlistScreen.style.opacity = "0";
       setTimeout(() => {
         bucketlistScreen.style.display = "none";
+        mainContent.style.display = "block";
+      }, 800);
+    });
+  }
+  const moviesBtn = document.getElementById("movies-btn");
+  if (moviesBtn) {
+    moviesBtn.addEventListener("click", () => {
+      mainContent.style.display = "none";
+      const moviesScreen = document.getElementById("movies-screen");
+      moviesScreen.style.display = "flex";
+      moviesScreen.style.opacity = "1";
+      loadMovies();
+    });
+  }
+
+  const closeMoviesBtn = document.getElementById("close-movies-btn");
+  if (closeMoviesBtn) {
+    closeMoviesBtn.addEventListener("click", () => {
+      const moviesScreen = document.getElementById("movies-screen");
+      moviesScreen.style.opacity = "0";
+      setTimeout(() => {
+        moviesScreen.style.display = "none";
         mainContent.style.display = "block";
       }, 800);
     });

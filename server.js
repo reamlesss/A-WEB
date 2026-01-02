@@ -7,10 +7,17 @@ const os = require("os");
 const app = express();
 const PORT = process.env.PORT || 5500;
 const TODOS_FILE = path.join(__dirname, "todos.json");
+const MOVIES_FILE = path.join(__dirname, "movies.json");
 
-// Helper to ensure todos.json exists
+// Helper to ensure files exist
 if (!fs.existsSync(TODOS_FILE)) {
   fs.writeFileSync(TODOS_FILE, JSON.stringify(["Trip to the mountains", "Sunset picnic"], null, 2));
+}
+if (!fs.existsSync(MOVIES_FILE)) {
+  fs.writeFileSync(MOVIES_FILE, JSON.stringify([
+    { name: "The Notebook", genre: "Romance" },
+    { name: "About Time", genre: "Drama/Romance" }
+  ], null, 2));
 }
 
 // Middleware to serve static files from the 'public' folder
@@ -20,75 +27,83 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
 app.use(cors());
 
-// GET route to fetch todos
+// --- TODOS ROUTES ---
 app.get("/todos", (req, res) => {
   fs.readFile(TODOS_FILE, "utf8", (err, data) => {
-    if (err) {
-      console.error("Error reading todos file:", err);
-      return res.status(500).send("Server error");
-    }
+    if (err) return res.status(500).send("Server error");
     let todos = [];
-    try {
-      todos = data ? JSON.parse(data) : [];
-    } catch (e) {
-      todos = [];
-    }
+    try { todos = data ? JSON.parse(data) : []; } catch (e) { todos = []; }
     res.json(todos);
   });
 });
 
-// POST route to add a new todo
 app.post("/todos", (req, res) => {
   const newTodo = req.body.todo;
   if (!newTodo) return res.status(400).send("Invalid todo");
-
   fs.readFile(TODOS_FILE, "utf8", (err, data) => {
     let todos = [];
-    if (!err && data) {
-      try {
-        todos = JSON.parse(data);
-      } catch (e) {
-        todos = [];
-      }
-    }
-    
+    if (!err && data) { try { todos = JSON.parse(data); } catch (e) { todos = []; } }
     todos.push(newTodo);
-    
     fs.writeFile(TODOS_FILE, JSON.stringify(todos, null, 2), (err) => {
-      if (err) {
-        console.error("Error writing todos file:", err);
-        return res.status(500).send("Server error");
-      }
-      console.log("Bucketlist item added: " + newTodo);
+      if (err) return res.status(500).send("Server error");
       res.status(201).send("Todo added");
     });
   });
 });
 
-// DELETE route to remove a todo
 app.delete("/todos/:index", (req, res) => {
   const index = parseInt(req.params.index);
-  
   fs.readFile(TODOS_FILE, "utf8", (err, data) => {
     if (err) return res.status(500).send("Server error");
-    
     let todos = [];
-    try {
-      todos = JSON.parse(data);
-    } catch (e) {
-      return res.status(500).send("File error");
-    }
-
+    try { todos = JSON.parse(data); } catch (e) { return res.status(500).send("File error"); }
     if (index >= 0 && index < todos.length) {
-      const removed = todos.splice(index, 1);
+      todos.splice(index, 1);
       fs.writeFile(TODOS_FILE, JSON.stringify(todos, null, 2), (err) => {
         if (err) return res.status(500).send("Server error");
-        console.log("Todo deleted: " + removed);
         res.status(200).send("Todo removed");
       });
-    } else {
-      res.status(400).send("Invalid index");
-    }
+    } else { res.status(400).send("Invalid index"); }
+  });
+});
+
+// --- MOVIES ROUTES ---
+app.get("/movies", (req, res) => {
+  fs.readFile(MOVIES_FILE, "utf8", (err, data) => {
+    if (err) return res.status(500).send("Server error");
+    let movies = [];
+    try { movies = data ? JSON.parse(data) : []; } catch (e) { movies = []; }
+    res.json(movies);
+  });
+});
+
+app.post("/movies", (req, res) => {
+  const { name, genre } = req.body;
+  if (!name || !genre) return res.status(400).send("Invalid movie data");
+  fs.readFile(MOVIES_FILE, "utf8", (err, data) => {
+    let movies = [];
+    if (!err && data) { try { movies = JSON.parse(data); } catch (e) { movies = []; } }
+    movies.push({ name, genre });
+    fs.writeFile(MOVIES_FILE, JSON.stringify(movies, null, 2), (err) => {
+      if (err) return res.status(500).send("Server error");
+      res.status(201).send("Movie added");
+    });
+  });
+});
+
+app.delete("/movies/:index", (req, res) => {
+  const index = parseInt(req.params.index);
+  fs.readFile(MOVIES_FILE, "utf8", (err, data) => {
+    if (err) return res.status(500).send("Server error");
+    let movies = [];
+    try { movies = JSON.parse(data); } catch (e) { return res.status(500).send("File error"); }
+    if (index >= 0 && index < movies.length) {
+      movies.splice(index, 1);
+      fs.writeFile(MOVIES_FILE, JSON.stringify(movies, null, 2), (err) => {
+        if (err) return res.status(500).send("Server error");
+        res.status(200).send("Movie removed");
+      });
+    } else { res.status(400).send("Invalid index"); }
   });
 });
 

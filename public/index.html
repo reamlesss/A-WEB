@@ -196,6 +196,7 @@
                 <div class="menu-container">
                     <button id="open-letter-btn" class="menu-btn">Read Love Letter</button>
                     <button id="bucketlist-btn" class="menu-btn">Bucketlist</button>
+                    <button id="movies-btn" class="menu-btn">Movies to Watch</button>
                 </div>
             </div>
 
@@ -217,6 +218,22 @@
                 <!-- Items will be loaded here -->
             </ul>
             <button id="close-bucketlist-btn" class="nav-btn" style="margin-top: 2rem;">Back to Home</button>
+        </div>
+    </div>
+
+    <!-- Movie List Screen -->
+    <div id="movies-screen" class="bucketlist-screen" style="display: none;">
+        <div class="bucketlist-container">
+            <h1 class="letter-title">Movies to Watch</h1>
+            <div class="bucketlist-input-group movies-input-group">
+                <input type="text" id="movie-name" placeholder="Movie Name..." class="bucketlist-input">
+                <input type="text" id="movie-genre" placeholder="Genre..." class="bucketlist-input">
+                <button onclick="addMovie()" class="add-btn">Add Movie</button>
+            </div>
+            <ul id="movies-list" class="todo-list">
+                <!-- Movies will be loaded here -->
+            </ul>
+            <button id="close-movies-btn" class="nav-btn" style="margin-top: 2rem;">Back to Home</button>
         </div>
     </div>
 
