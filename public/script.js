@@ -37,7 +37,7 @@ async function setInputPlaceholder() {
     console.error("Element with id 'new-todo' not found.");
   }
 }
-const API_BASE_URL = window.location.origin;
+const API_BASE_URL = ""; // Using relative paths for better Vercel/Local compatibility
 
 
 

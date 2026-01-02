@@ -6,6 +6,12 @@ const os = require("os");
 
 const app = express();
 const PORT = process.env.PORT || 5500;
+const TODOS_FILE = path.join(__dirname, "todos.json");
+
+// Helper to ensure todos.json exists
+if (!fs.existsSync(TODOS_FILE)) {
+  fs.writeFileSync(TODOS_FILE, JSON.stringify(["Trip to the mountains", "Sunset picnic"], null, 2));
+}
 
 // Middleware to serve static files from the 'public' folder
 app.use(express.static(path.join(__dirname, "public")));
@@ -14,22 +20,18 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
 app.use(cors());
 
+// GET route to fetch todos
 app.get("/todos", (req, res) => {
-  const todosFilePath = path.join(__dirname, "todos.json");
-  fs.readFile(todosFilePath, "utf8", (err, data) => {
+  fs.readFile(TODOS_FILE, "utf8", (err, data) => {
     if (err) {
       console.error("Error reading todos file:", err);
-      res.status(500).send("Server error");
-      return;
+      return res.status(500).send("Server error");
     }
     let todos = [];
-    if (data && data.trim() !== "") {
-      try {
-        todos = JSON.parse(data);
-      } catch (parseErr) {
-        console.error("Error parsing todos JSON:", parseErr);
-        todos = [];
-      }
+    try {
+      todos = data ? JSON.parse(data) : [];
+    } catch (e) {
+      todos = [];
     }
     res.json(todos);
   });
@@ -37,37 +39,27 @@ app.get("/todos", (req, res) => {
 
 // POST route to add a new todo
 app.post("/todos", (req, res) => {
-  console.log("post todo started");
-  console.log("Bucketlist item: " + req.body.todo + " added");
   const newTodo = req.body.todo;
-  const todosFilePath = path.join(__dirname, "todos.json");
+  if (!newTodo) return res.status(400).send("Invalid todo");
 
-  fs.readFile(todosFilePath, "utf8", (err, data) => {
-    if (err) {
-      console.error("Error reading todos file:", err);
-      res.status(500).send("Server error");
-      return;
-    }
-
+  fs.readFile(TODOS_FILE, "utf8", (err, data) => {
     let todos = [];
-    if (data && data.trim() !== "") {
+    if (!err && data) {
       try {
         todos = JSON.parse(data);
-      } catch (parseErr) {
-        console.error("Error parsing todos JSON:", parseErr);
-        // If file is corrupted, we might want to start fresh or return error
-        // For now, let's start fresh to keep it working
+      } catch (e) {
         todos = [];
       }
     }
-
+    
     todos.push(newTodo);
-    fs.writeFile(todosFilePath, JSON.stringify(todos, null, 2), (err) => {
+    
+    fs.writeFile(TODOS_FILE, JSON.stringify(todos, null, 2), (err) => {
       if (err) {
         console.error("Error writing todos file:", err);
-        res.status(500).send("Server error");
-        return;
+        return res.status(500).send("Server error");
       }
+      console.log("Bucketlist item added: " + newTodo);
       res.status(201).send("Todo added");
     });
   });
@@ -76,40 +68,28 @@ app.post("/todos", (req, res) => {
 // DELETE route to remove a todo
 app.delete("/todos/:index", (req, res) => {
   const index = parseInt(req.params.index);
-  const todosFilePath = path.join(__dirname, "todos.json");
-
-  fs.readFile(todosFilePath, "utf8", (err, data) => {
-    if (err) {
-      console.error("Error reading todos file:", err);
-      res.status(500).send("Server error");
-      return;
-    }
-
+  
+  fs.readFile(TODOS_FILE, "utf8", (err, data) => {
+    if (err) return res.status(500).send("Server error");
+    
     let todos = [];
-    if (data && data.trim() !== "") {
-      try {
-        todos = JSON.parse(data);
-      } catch (parseErr) {
-        console.error("Error parsing todos JSON:", parseErr);
-        todos = [];
-      }
+    try {
+      todos = JSON.parse(data);
+    } catch (e) {
+      return res.status(500).send("File error");
     }
 
     if (index >= 0 && index < todos.length) {
-      todos.splice(index, 1);
-      fs.writeFile(todosFilePath, JSON.stringify(todos, null, 2), (err) => {
-        if (err) {
-          console.error("Error writing todos file:", err);
-          res.status(500).send("Server error");
-          return;
-        }
+      const removed = todos.splice(index, 1);
+      fs.writeFile(TODOS_FILE, JSON.stringify(todos, null, 2), (err) => {
+        if (err) return res.status(500).send("Server error");
+        console.log("Todo deleted: " + removed);
         res.status(200).send("Todo removed");
       });
     } else {
       res.status(400).send("Invalid index");
     }
   });
-  console.log("Todo deleted");
 });
 
 // Funkce na získání IP adresy
