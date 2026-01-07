@@ -1,24 +1,31 @@
+console.log("🚀 Server script starting...");
 const express = require("express");
-const fs = require("fs");
+const mongoose = require("mongoose");
 const path = require("path");
 const cors = require("cors");
 const os = require("os");
-
+console.log("📦 Modules loaded, setting up database...");
 const app = express();
 const PORT = process.env.PORT || 5500;
-const TODOS_FILE = path.join(__dirname, "todos.json");
-const MOVIES_FILE = path.join(__dirname, "movies.json");
+console.log("📦 Modules loaded, setting up database...");
+// MONGODB pass: TMC4mLc33dNOTiZz
+// 1. DATABASE CONNECTION
+// Replace 'YOUR_MONGODB_URI' with your actual connection string from MongoDB Atlas
+// On Vercel, you should add this to your Environment Variables as MONGODB_URI
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://reamplays12_db_user:TMC4mLc33dNOTiZz@cluster0.rmidnce.mongodb.net/a-web?retryWrites=true&w=majority&appName=Cluster0';
 
-// Helper to ensure files exist
-if (!fs.existsSync(TODOS_FILE)) {
-  fs.writeFileSync(TODOS_FILE, JSON.stringify(["Trip to the mountains", "Sunset picnic"], null, 2));
-}
-if (!fs.existsSync(MOVIES_FILE)) {
-  fs.writeFileSync(MOVIES_FILE, JSON.stringify([
-    { name: "The Notebook", genre: "Romance" },
-    { name: "About Time", genre: "Drama/Romance" }
-  ], null, 2));
-}
+mongoose.connect(MONGODB_URI, {
+  serverSelectionTimeoutMS: 5000 // Timeout after 5s instead of hanging
+})
+  .then(() => console.log("✅ Connected to Cloud Database"))
+  .catch(err => {
+    console.error("❌ Database connection error:");
+    console.error(err.message);
+  });
+
+// 2. DATA MODELS
+const Todo = mongoose.model('Todo', { text: String });
+const Movie = mongoose.model('Movie', { name: String, genre: String });
 
 // Middleware to serve static files from the 'public' folder
 app.use(express.static(path.join(__dirname, "public")));
@@ -28,83 +35,76 @@ app.use(express.json());
 app.use(cors());
 
 // --- TODOS ROUTES ---
-app.get("/todos", (req, res) => {
-  fs.readFile(TODOS_FILE, "utf8", (err, data) => {
-    if (err) return res.status(500).send("Server error");
-    let todos = [];
-    try { todos = data ? JSON.parse(data) : []; } catch (e) { todos = []; }
-    res.json(todos);
-  });
+app.get("/todos", async (req, res) => {
+  try {
+    const todos = await Todo.find();
+    res.json(todos.map(t => t.text)); // Mapping to match your original front-end logic
+  } catch (err) {
+    res.status(500).send("Error fetching todos");
+  }
 });
 
-app.post("/todos", (req, res) => {
-  const newTodo = req.body.todo;
-  if (!newTodo) return res.status(400).send("Invalid todo");
-  fs.readFile(TODOS_FILE, "utf8", (err, data) => {
-    let todos = [];
-    if (!err && data) { try { todos = JSON.parse(data); } catch (e) { todos = []; } }
-    todos.push(newTodo);
-    fs.writeFile(TODOS_FILE, JSON.stringify(todos, null, 2), (err) => {
-      if (err) return res.status(500).send("Server error");
-      res.status(201).send("Todo added");
-    });
-  });
+app.post("/todos", async (req, res) => {
+  try {
+    const newTodo = new Todo({ text: req.body.todo });
+    await newTodo.save();
+    console.log("Bucketlist item added to DB: " + req.body.todo);
+    res.status(201).send("Todo added");
+  } catch (err) {
+    res.status(500).send("Error saving todo");
+  }
 });
 
-app.delete("/todos/:index", (req, res) => {
-  const index = parseInt(req.params.index);
-  fs.readFile(TODOS_FILE, "utf8", (err, data) => {
-    if (err) return res.status(500).send("Server error");
-    let todos = [];
-    try { todos = JSON.parse(data); } catch (e) { return res.status(500).send("File error"); }
-    if (index >= 0 && index < todos.length) {
-      todos.splice(index, 1);
-      fs.writeFile(TODOS_FILE, JSON.stringify(todos, null, 2), (err) => {
-        if (err) return res.status(500).send("Server error");
-        res.status(200).send("Todo removed");
-      });
-    } else { res.status(400).send("Invalid index"); }
-  });
+app.delete("/todos/:index", async (req, res) => {
+  try {
+    const todos = await Todo.find();
+    const target = todos[parseInt(req.params.index)];
+    if (target) {
+      await Todo.findByIdAndDelete(target._id);
+      res.status(200).send("Todo removed");
+    } else {
+      res.status(404).send("Not found");
+    }
+  } catch (err) {
+    res.status(500).send("Error deleting todo");
+  }
 });
 
 // --- MOVIES ROUTES ---
-app.get("/movies", (req, res) => {
-  fs.readFile(MOVIES_FILE, "utf8", (err, data) => {
-    if (err) return res.status(500).send("Server error");
-    let movies = [];
-    try { movies = data ? JSON.parse(data) : []; } catch (e) { movies = []; }
+app.get("/movies", async (req, res) => {
+  try {
+    const movies = await Movie.find();
     res.json(movies);
-  });
+  } catch (err) {
+    res.status(500).send("Error fetching movies");
+  }
 });
 
-app.post("/movies", (req, res) => {
-  const { name, genre } = req.body;
-  if (!name || !genre) return res.status(400).send("Invalid movie data");
-  fs.readFile(MOVIES_FILE, "utf8", (err, data) => {
-    let movies = [];
-    if (!err && data) { try { movies = JSON.parse(data); } catch (e) { movies = []; } }
-    movies.push({ name, genre });
-    fs.writeFile(MOVIES_FILE, JSON.stringify(movies, null, 2), (err) => {
-      if (err) return res.status(500).send("Server error");
-      res.status(201).send("Movie added");
-    });
-  });
+app.post("/movies", async (req, res) => {
+  try {
+    const { name, genre } = req.body;
+    const newMovie = new Movie({ name, genre });
+    await newMovie.save();
+    console.log("Movie added to DB: " + name);
+    res.status(201).send("Movie added");
+  } catch (err) {
+    res.status(500).send("Error saving movie");
+  }
 });
 
-app.delete("/movies/:index", (req, res) => {
-  const index = parseInt(req.params.index);
-  fs.readFile(MOVIES_FILE, "utf8", (err, data) => {
-    if (err) return res.status(500).send("Server error");
-    let movies = [];
-    try { movies = JSON.parse(data); } catch (e) { return res.status(500).send("File error"); }
-    if (index >= 0 && index < movies.length) {
-      movies.splice(index, 1);
-      fs.writeFile(MOVIES_FILE, JSON.stringify(movies, null, 2), (err) => {
-        if (err) return res.status(500).send("Server error");
-        res.status(200).send("Movie removed");
-      });
-    } else { res.status(400).send("Invalid index"); }
-  });
+app.delete("/movies/:index", async (req, res) => {
+  try {
+    const movies = await Movie.find();
+    const target = movies[parseInt(req.params.index)];
+    if (target) {
+      await Movie.findByIdAndDelete(target._id);
+      res.status(200).send("Movie removed");
+    } else {
+      res.status(404).send("Not found");
+    }
+  } catch (err) {
+    res.status(500).send("Error deleting movie");
+  }
 });
 
 // Funkce na získání IP adresy
